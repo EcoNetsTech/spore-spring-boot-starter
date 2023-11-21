@@ -1,0 +1,30 @@
+retrofit:
+  # 全局日志打印配置
+  global-log:
+    # 启用全局日志打印
+    enable: true
+    # 全局日志打印级别
+    log-level: info
+    # 全局日志打印策略
+    log-strategy: body
+
+
+  # 全局重试配置
+  global-retry:
+    # 是否启用全局重试
+    enable: true
+    # 全局重试间隔时间
+    interval-ms: 1
+    # 全局最大重试次数
+    max-retries: 1
+    retry-rules:
+      - response_status_not_2xx
+      - occur_io_exception
+
+  # 自动设置PathMathInterceptor的scope为prototype
+  auto-set-prototype-scope-for-path-math-interceptor: true
+
+test:
+  baseUrl: https://v1.hitokoto.cn
+  accessKeyId: root
+  accessKeySecret: 123456
