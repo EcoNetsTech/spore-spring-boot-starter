@@ -6,11 +6,24 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface SporeClient {
-
     /**
-     * 请求地址  支持 http、读取配置文件
+     * 基础URL
+     * 可以直接使用url
+     * 也可以指定为属性键，例如：$ {propertyKey}
+     * 如果baseUrl没有配置，则必须配置serviceId，path可选配置。
      */
-    String value() default "";
+    String baseUrl() default "";
+    /**
+     * 服务id
+     * 用于微服务之前的http调用
+     * 可以指定为属性键，例如：$ {propertyKey}
+     */
+    String serviceId() default "";
+    /**
+     * 服务路径前缀
+     */
+    String path() default "";
+
     /**
      * 请求超时时间 单位:毫秒
      */

@@ -583,13 +583,7 @@ public class SpringCloudServiceInstanceChooser implements ServiceInstanceChooser
    public SpringCloudServiceInstanceChooser(LoadBalancerClient loadBalancerClient) {
       this.loadBalancerClient = loadBalancerClient;
    }
-
-   /**
-    * Chooses a ServiceInstance URI from the LoadBalancer for the specified service.
-    *
-    * @param serviceId The service ID to look up the LoadBalancer.
-    * @return Return the uri of ServiceInstance
-    */
+   
    @Override
    public URI choose(String serviceId) {
       ServiceInstance serviceInstance = loadBalancerClient.choose(serviceId);
