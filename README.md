@@ -2,7 +2,7 @@
 ## spore-spring-boot-starter
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![GitHub release](https://img.shields.io/github/v/release/lianjiatech/retrofit-spring-boot-starter.svg)](https://github.com/XimuTech/spore-spring-boot-starterr/releases)
+[![GitHub release](https://img.shields.io/github/v/release/ximutech/spore-spring-boot-starter.svg)](https://github.com/XimuTech/spore-spring-boot-starterr/releases)
 [![License](https://img.shields.io/badge/JDK-1.8+-4EB1BA.svg)](https://docs.oracle.com/javase/8/docs/index.html)
 [![License](https://img.shields.io/badge/SpringBoot-1.5+-green.svg)](https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/htmlsingle/)
 
@@ -37,7 +37,7 @@ github项目地址：[https://github.com/XimuTech/retrofit-spring-boot-starter](
 <dependency>
     <groupId>com.ximutech.spore</groupId>
    <artifactId>spore-spring-boot-starter</artifactId>
-   <version>2.0.1</version>
+   <version>2.0.2</version>
 </dependency>
 ```
 
@@ -51,8 +51,8 @@ github项目地址：[https://github.com/XimuTech/retrofit-spring-boot-starter](
 @SporeClient(baseUrl = "${test.baseUrl}")
 public interface HttpApi {
 
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
+    @GET("/")
+    Result<Person> getPerson();
 }
 ```
 
@@ -252,78 +252,6 @@ public interface HttpApi {
 例如，我们需要"在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能再发起HTTP请求"，这时候可以自定义`@Sign`注解来实现。
 
 
-#### 自定义`@Sign`注解
-
-```java
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Documented
-@InterceptMark
-public @interface Sign {
-    
-    String accessKeyId();
-
-    String accessKeySecret();
-
-    String[] include() default {"/**"};
-
-    String[] exclude() default {};
-
-    Class<? extends BasePathMatchInterceptor> handler() default SignInterceptor.class;
-}
-```
-
-在`@Sign`注解中指定了使用的拦截器是`SignInterceptor`。
-
-#### 实现`SignInterceptor`
-
-```java
-@Component
-public class SignInterceptor extends BasePathMatchInterceptor {
-
-    private String accessKeyId;
-
-    private String accessKeySecret;
-
-    public void setAccessKeyId(String accessKeyId) {
-        this.accessKeyId = accessKeyId;
-    }
-
-    public void setAccessKeySecret(String accessKeySecret) {
-        this.accessKeySecret = accessKeySecret;
-    }
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        Request newReq = request.newBuilder()
-                .addHeader("accessKeyId", accessKeyId)
-                .addHeader("accessKeySecret", accessKeySecret)
-                .build();
-        return chain.proceed(newReq);
-    }
-}
-```
-
-> 注意：`accessKeyId`和`accessKeySecret`字段必须提供`setter`方法。
-
-拦截器的`accessKeyId`和`accessKeySecret`字段值会依据`@Sign`注解的`accessKeyId()`和`accessKeySecret()`值自动注入，如果`@Sign`指定的是占位符形式的字符串，则会取配置属性值进行注入。
-
-#### 接口上使用`@Sign`
-
-```java
-@SporeClient(baseUrl = "${test.baseUrl}")
-@Sign(accessKeyId = "${test.accessKeyId}", accessKeySecret = "${test.accessKeySecret}", exclude = {"/api/test/person"})
-public interface HttpApi {
-
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
-
-    @POST("savePerson")
-    Result<Person> savePerson(@Body Person person);
-}
-```
-
 ### 日志打印
 
 组件支持支持全局日志打印和声明式日志打印。
@@ -408,110 +336,6 @@ retrofit:
 
 如果需要修改请求重试行为，可以继承`RetryInterceptor`，并将其配置成`Spring bean`。
 
-### 熔断降级
-
-熔断降级默认关闭，当前支持`sentinel`和`resilience4j`两种实现。
-
-```yaml
-retrofit:
-   # 熔断降级配置
-   degrade:
-      # 熔断降级类型。默认none，表示不启用熔断降级
-      degrade-type: sentinel
-```
-
-#### Sentinel
-
-配置`degrade-type=sentinel`开启，然后在相关接口或者方法上声明`@SentinelDegrade`注解即可。
-
-记得手动引入`Sentinel`依赖：
-
-```xml
-
-<dependency>
-   <groupId>com.alibaba.csp</groupId>
-   <artifactId>sentinel-core</artifactId>
-   <version>1.6.3</version>
-</dependency>
-```
-
-此外，还支持全局`Sentinel`熔断降级：
-
-```yaml
-retrofit:
-  # 熔断降级配置
-  degrade:
-    # 熔断降级类型。默认none，表示不启用熔断降级
-    degrade-type: sentinel
-    # 全局sentinel降级配置
-    global-sentinel-degrade:
-      # 是否开启
-      enable: true
-      # ...其他sentinel全局配置
-```
-
-#### Resilience4j
-
-配置`degrade-type=resilience4j`开启。然后在相关接口或者方法上声明`@Resilience4jDegrade`即可。
-
-记得手动引入`Resilience4j`依赖：
-
-```xml
-
-<dependency>
-   <groupId>io.github.resilience4j</groupId>
-   <artifactId>resilience4j-circuitbreaker</artifactId>
-   <version>1.7.1</version>
-</dependency>
-```
-
-通过以下配置可开启全局resilience4j熔断降级：
-
-```yaml
-retrofit:
-   # 熔断降级配置
-   degrade:
-      # 熔断降级类型。默认none，表示不启用熔断降级
-      degrade-type: resilience4j
-      # 全局resilience4j降级配置
-      global-resilience4j-degrade:
-         # 是否开启
-         enable: true
-         # 根据该名称从#{@link CircuitBreakerConfigRegistry}获取CircuitBreakerConfig，作为全局熔断配置
-         circuit-breaker-config-name: defaultCircuitBreakerConfig
-```
-
-熔断配置管理：
-
-1. 实现`CircuitBreakerConfigRegistrar`接口，注册`CircuitBreakerConfig`。
-
-   ```java
-   @Component
-   public class CustomCircuitBreakerConfigRegistrar implements CircuitBreakerConfigRegistrar {
-      @Override
-      public void register(CircuitBreakerConfigRegistry registry) {
-      
-            // 替换默认的CircuitBreakerConfig
-            registry.register(Constants.DEFAULT_CIRCUIT_BREAKER_CONFIG, CircuitBreakerConfig.ofDefaults());
-      
-            // 注册其它的CircuitBreakerConfig
-            registry.register("testCircuitBreakerConfig", CircuitBreakerConfig.custom()
-                    .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
-                    .failureRateThreshold(20)
-                    .minimumNumberOfCalls(5)
-                    .permittedNumberOfCallsInHalfOpenState(5)
-                    .build());
-      }
-   }
-    ```
-   
-2. 通过`circuitBreakerConfigName`指定`CircuitBreakerConfig`。包括`retrofit.degrade.global-resilience4j-degrade.circuit-breaker-config-name`或者`@Resilience4jDegrade.circuitBreakerConfigName`
-
-
-
-#### 扩展熔断降级
-
-如果用户需要使用其他的熔断降级实现，继承`BaseRetrofitDegrade`，并将其配置`Spring Bean`。
 
 #### 配置fallback或者fallbackFactory (可选)
 
