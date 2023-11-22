@@ -1,5 +1,6 @@
 package com.ximutech.spore.retrofit;
 
+import com.ximutech.spore.Constants;
 import com.ximutech.spore.SporeClient;
 import com.ximutech.spore.config.RetrofitConfigBean;
 import com.ximutech.spore.util.ApplicationHolder;
@@ -80,25 +81,23 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
     }
 
     private String convertBaseUrl(SporeClient sporeClient) {
-        String baseurl;
-        String value = sporeClient.value();
-        String url = null;
-        // 读取配置文件的请求地址
-        if(environment != null) {
-            url = environment.getProperty(value);
-        }
-        //spring没配置url
-        if (StringUtils.isEmpty(url)) {
-            //以http开头
-            if(!value.startsWith("http")) {
-                throw new IllegalArgumentException("config:" + value + " is not define");
-            }else{
-                baseurl = value;
+        String baseUrl = sporeClient.baseUrl();
+        if (StringUtils.hasText(baseUrl)) {
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
+            // 解析baseUrl占位符
+            if (!baseUrl.endsWith(Constants.SUFFIX)) {
+                baseUrl += Constants.SUFFIX;
             }
-        }else {
-            baseurl = url;
+        } else {
+            String serviceId = sporeClient.serviceId();
+            String path = sporeClient.path();
+            if (!path.endsWith(Constants.SUFFIX)) {
+                path += Constants.SUFFIX;
+            }
+            baseUrl = Constants.HTTP_PREFIX + (serviceId + Constants.SUFFIX + path).replaceAll("/+", Constants.SUFFIX);
+            baseUrl = environment.resolveRequiredPlaceholders(baseUrl);
         }
-        return baseurl;
+        return baseUrl;
     }
 
     private OkHttpClient createOkHttpClient(SporeClient sporeClient) {
