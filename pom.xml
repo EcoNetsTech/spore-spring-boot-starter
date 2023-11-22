@@ -14,18 +14,18 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>https://github.com/ximuTech/spore-spring-boot-starter/blob/master/LICENSE</url>
+            <url>https://github.com/XimuTech/spore-spring-boot-starter/blob/master/LICENSE</url>
         </license>
     </licenses>
 
     <scm>
-        <url>https://github.com/XiMuTech/retrofit-spring-boot-starter</url>
-        <connection>https://github.com/ximuTech/spore-spring-boot-starter.git</connection>
+        <url>https://github.com/XimuTech/spore-spring-boot-starter</url>
+        <connection>https://github.com/XimuTech/spore-spring-boot-starter.git</connection>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/ximuTech/spore-spring-boot-starter/issues</url>
+        <url>https://github.com/XimuTech/spore-spring-boot-starter/issues</url>
     </issueManagement>
 
     <developers>
