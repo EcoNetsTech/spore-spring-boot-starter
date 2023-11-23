@@ -117,7 +117,7 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
         OkHttpClient.Builder okHttpClientBuilder;
         // 判断是否使用自定义OkHttpClient
         if (StringUtils.hasText(sporeClient.sourceOkHttpClient())){
-            OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry().get(sporeClient.sourceOkHttpClient());
+            OkHttpClient sourceOkHttpClient = retrofitConfigBean.getOkHttpClientRegistry().get(sporeClient.sourceOkHttpClient());
             okHttpClientBuilder = sourceOkHttpClient.newBuilder();
         }else {
             okHttpClientBuilder = new OkHttpClient.Builder();
@@ -146,12 +146,15 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
             okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());
         }
 
-        // 注册 错误解码拦截器
+        // 注册错误解码拦截器
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
-        // 注册 重试拦截器
+        // 注册重试拦截器
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
-        // 注册 日志拦截器
+        // 注册日志拦截器
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
+
+        // 注册全局拦截器
+        retrofitConfigBean.getGlobalInterceptors().forEach(okHttpClientBuilder::addInterceptor);
 
         OkHttpClient httpClient = okHttpClientBuilder.build();
         httpClient.dispatcher().setMaxRequests(1000);

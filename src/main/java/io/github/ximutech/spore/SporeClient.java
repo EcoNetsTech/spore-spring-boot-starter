@@ -1,6 +1,7 @@
 package io.github.ximutech.spore;
 
 import io.github.ximutech.spore.decoder.ErrorDecoder;
+import io.github.ximutech.spore.okhttp.OkHttpClientRegistry;
 
 import java.lang.annotation.*;
 
@@ -26,6 +27,7 @@ public @interface SporeClient {
      */
     String path() default "";
 
+    /*========= sourceOkHttpClient为时空超时时间才生效   ===========*/
     /**
      * 请求超时时间 单位:毫秒
      */
@@ -43,6 +45,12 @@ public @interface SporeClient {
      */
     long callTimeout() default 10000;
 
+
+    /**
+     * OkHttpClient，根据该名称到#{@link OkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
+     */
+    String sourceOkHttpClient() default "";
+
     /**
      * 反序列化策略
      *
@@ -59,11 +67,6 @@ public @interface SporeClient {
      * 是否提前验证Service接口方法
      */
     boolean validateEagerly() default false;
-
-    /**
-     * OkHttpClient，根据该名称到#{@link SourceOkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
-     */
-    String sourceOkHttpClient() default "";
 
     /**
      * 当前接口采用的错误解码器，当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断。

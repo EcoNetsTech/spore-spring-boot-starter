@@ -1,10 +1,11 @@
 package io.github.ximutech.spore.config;
 
-import io.github.ximutech.spore.SourceOkHttpClientRegistry;
+import io.github.ximutech.spore.GlobalInterceptor;
+import io.github.ximutech.spore.okhttp.OkHttpClientRegistry;
 import io.github.ximutech.spore.decoder.ErrorDecoder;
 import io.github.ximutech.spore.decoder.ErrorDecoderInterceptor;
 import io.github.ximutech.spore.log.LoggingInterceptor;
-import io.github.ximutech.spore.SourceOkHttpClientRegistrar;
+import io.github.ximutech.spore.okhttp.OkHttpClientRegistrar;
 import io.github.ximutech.spore.retry.RetryInterceptor;
 import io.github.ximutech.spore.service.ServiceChooseInterceptor;
 import io.github.ximutech.spore.service.ServiceInstanceChooser;
@@ -61,9 +62,9 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SourceOkHttpClientRegistry sourceOkHttpClientRegistry(
-            @Autowired(required = false) List<SourceOkHttpClientRegistrar> sourceOkHttpClientRegistrars) {
-        return new SourceOkHttpClientRegistry(sourceOkHttpClientRegistrars);
+    public OkHttpClientRegistry sourceOkHttpClientRegistry(
+            @Autowired(required = false) List<OkHttpClientRegistrar> okHttpClientRegistrars) {
+        return new OkHttpClientRegistry(okHttpClientRegistrars);
     }
 
     @Bean
@@ -72,7 +73,8 @@ public class RetrofitAutoConfiguration {
                                                  LoggingInterceptor loggingInterceptor,
                                                  ErrorDecoderInterceptor errorDecoderInterceptor,
                                                  ServiceChooseInterceptor serviceChooseInterceptor,
-                                                 SourceOkHttpClientRegistry sourceOkHttpClientRegistry){
+                                                 @Autowired(required = false) List<GlobalInterceptor> globalInterceptors,
+                                                 OkHttpClientRegistry okHttpClientRegistry){
 
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
         retrofitConfigBean.setRetryInterceptor(retryInterceptor);
@@ -80,7 +82,8 @@ public class RetrofitAutoConfiguration {
         retrofitConfigBean.setErrorDecoderInterceptor(errorDecoderInterceptor);
         retrofitConfigBean.setServiceChooseInterceptor(serviceChooseInterceptor);
 
-        retrofitConfigBean.setSourceOkHttpClientRegistry(sourceOkHttpClientRegistry);
+        retrofitConfigBean.setOkHttpClientRegistry(okHttpClientRegistry);
+
         return retrofitConfigBean;
     }
 
