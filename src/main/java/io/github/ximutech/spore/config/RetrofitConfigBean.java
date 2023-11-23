@@ -1,9 +1,15 @@
 package io.github.ximutech.spore.config;
 
-import io.github.ximutech.spore.SourceOkHttpClientRegistry;
+import io.github.ximutech.spore.GlobalInterceptor;
+import io.github.ximutech.spore.okhttp.OkHttpClientRegistry;
+import io.github.ximutech.spore.decoder.ErrorDecoderInterceptor;
 import io.github.ximutech.spore.log.LoggingInterceptor;
 import io.github.ximutech.spore.retry.RetryInterceptor;
+import io.github.ximutech.spore.service.ServiceChooseInterceptor;
 import lombok.Data;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author ximu
@@ -17,9 +23,23 @@ public class RetrofitConfigBean {
 
     private LoggingInterceptor loggingInterceptor;
 
-    private SourceOkHttpClientRegistry sourceOkHttpClientRegistry;
+    private ErrorDecoderInterceptor errorDecoderInterceptor;
+
+    private ServiceChooseInterceptor serviceChooseInterceptor;
+
+    private OkHttpClientRegistry okHttpClientRegistry;
+
+    private List<GlobalInterceptor> globalInterceptors;
 
     public RetrofitConfigBean(RetrofitProperties retrofitProperties) {
         this.retrofitProperties = retrofitProperties;
+    }
+
+
+    public List<GlobalInterceptor> getGlobalInterceptors(){
+        if (globalInterceptors == null){
+            return Collections.emptyList();
+        }
+        return globalInterceptors;
     }
 }

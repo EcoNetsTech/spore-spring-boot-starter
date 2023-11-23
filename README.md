@@ -10,7 +10,7 @@
 1. *Spring Boot 3.x 项目，请使用spore-spring-boot-starter 3.x*。
 2. *Spring Boot 1.x/2.x 项目，请使用spore-spring-boot-starter 2.x*。
 
-> 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
+> 麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
 github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](https://github.com/XimuTech/spore-spring-boot-starter)
 
@@ -37,7 +37,7 @@ github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](htt
 <dependency>
    <groupId>io.github.ximutech</groupId>
    <artifactId>spore-spring-boot-starter</artifactId>
-   <version>2.0.3</version>
+   <version>2.0.4</version>
 </dependency>
 ```
 
@@ -52,7 +52,7 @@ github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](htt
 public interface HttpApi {
 
     @GET("/")
-    Result<Person> getPerson();
+    HitokotoVO getContent();
 }
 ```
 
@@ -134,23 +134,23 @@ retrofit:
 
 如果需要修改`OkHttpClient`其它配置，可以通过自定义`OkHttpClient`来实现，步骤如下：
 
-1. 实现`SourceOkHttpClientRegistrar`接口，调用`SourceOkHttpClientRegistry#register()`方法注册`OkHttpClient`。
+1. 实现`OkHttpClientRegistrar`接口，调用`OkHttpClientRegistry#register()`方法注册`OkHttpClient`。
    
    ```java
    @Slf4j
    @Component
-   public class CustomSourceOkHttpClientRegistrar implements SourceOkHttpClientRegistrar {
+   public class CustomOkHttpClientRegistrar implements OkHttpClientRegistrar {
    
        @Override
-       public void register(SourceOkHttpClientRegistry registry) {
+       public void register(OkHttpClientRegistry registry) {
    
-           // 添加testSourceOkHttpClient
-           registry.register("testSourceOkHttpClient", new OkHttpClient.Builder()
+           // 添加testOkHttpClient
+           registry.register("testOkHttpClient", new OkHttpClient.Builder()
                    .connectTimeout(Duration.ofSeconds(3))
                    .writeTimeout(Duration.ofSeconds(3))
                    .readTimeout(Duration.ofSeconds(3))
                    .addInterceptor(chain -> {
-                       log.info("============use testSourceOkHttpClient=============");
+                       log.info("============use testOkHttpClient=============");
                        return chain.proceed(chain.request());
                    })
                    .build());
@@ -161,7 +161,7 @@ retrofit:
 2. 通过`@SporeClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`。
 
    ```java
-   @SporeClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testSourceOkHttpClient")
+   @SporeClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testOkHttpClient")
    public interface CustomOkHttpTestApi {
    
        @GET("person")
@@ -170,7 +170,6 @@ retrofit:
    ```
 
 > 注意：组件不会直接使用指定的`OkHttpClient`，而是基于该`OkHttpClient`创建一个新的。
-
 
 
 ### 注解式拦截器
@@ -240,16 +239,30 @@ public interface HttpApi {
 上面的`@Intercept`配置表示：拦截`HttpApi`接口下`/api/**`路径下（排除`/api/test/savePerson`）的请求，拦截处理器使用`TimeStampInterceptor`。
 
 
+## 全局拦截器
 
-### 自定义拦截注解
+### 全局应用拦截器
 
-有的时候，我们需要在"拦截注解"动态传入一些参数，然后在拦截的时候使用这些参数。 这时候，我们可以使用"自定义拦截注解"，步骤如下：
+如果我们需要对整个系统的的`HTTP`请求执行统一的拦截处理，可以实现全局拦截器`GlobalInterceptor`, 并配置成`spring Bean`。
 
-1. 自定义注解。必须使用`@InterceptMark`标记，并且注解中必须包括`include、exclude、handler`字段。
-2. 继承`BasePathMatchInterceptor`编写拦截处理器
-3. 接口上使用自定义注解
+```java
+@Component
+public class CustomGlobalInterceptor implements GlobalInterceptor {
 
-例如，我们需要"在请求头里面动态加入`accessKeyId`、`accessKeySecret`签名信息才能再发起HTTP请求"，这时候可以自定义`@Sign`注解来实现。
+   @Autowired
+   private TestService testService;
+
+   @Override
+   public Response intercept(Chain chain) throws IOException {
+      Request request = chain.request();
+      Request newReq = request.newBuilder()
+              .addHeader("source", "test")
+              .build();
+      testService.test();
+      return chain.proceed(newReq);
+   }
+}
+```
 
 
 ### 日志打印

@@ -1,4 +1,4 @@
-package io.github.ximutech.spore;
+package io.github.ximutech.spore.okhttp;
 
 import okhttp3.OkHttpClient;
 import org.springframework.util.Assert;
@@ -13,13 +13,13 @@ import java.util.Map;
  *
  * @author ximu
  */
-public class SourceOkHttpClientRegistry {
+public class OkHttpClientRegistry {
 
     private final Map<String, OkHttpClient> okHttpClientMap;
 
-    private final List<SourceOkHttpClientRegistrar> registrars;
+    private final List<OkHttpClientRegistrar> registrars;
 
-    public SourceOkHttpClientRegistry(List<SourceOkHttpClientRegistrar> registrars) {
+    public OkHttpClientRegistry(List<OkHttpClientRegistrar> registrars) {
         this.registrars = registrars;
         this.okHttpClientMap = new HashMap<>(4);
     }

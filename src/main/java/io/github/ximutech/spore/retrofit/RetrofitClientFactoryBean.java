@@ -3,7 +3,6 @@ package io.github.ximutech.spore.retrofit;
 import io.github.ximutech.spore.Constants;
 import io.github.ximutech.spore.SporeClient;
 import io.github.ximutech.spore.config.RetrofitConfigBean;
-import io.github.ximutech.spore.util.ApplicationHolder;
 import io.github.ximutech.spore.util.ThreadPoolUtil;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -32,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ximu
  */
-public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, InitializingBean, EnvironmentAware, ApplicationContextAware {
+public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, EnvironmentAware, ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(RetrofitClientFactoryBean.class);
 
@@ -64,6 +62,10 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
         return createRetrofit().create(targetClass);
     }
 
+    /**
+     * 创建Retrofit  createRetrofit
+     * @return Retrofit
+     */
     private Retrofit createRetrofit(){
         SporeClient sporeClient = AnnotatedElementUtils.findMergedAnnotation(targetClass, SporeClient.class);
 
@@ -80,6 +82,11 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
         return retrofitBuilder.build();
     }
 
+    /**
+     * 获取baseUrl convertBaseUrl
+     * @param sporeClient
+     * @return String
+     */
     private String convertBaseUrl(SporeClient sporeClient) {
         String baseUrl = sporeClient.baseUrl();
         if (StringUtils.hasText(baseUrl)) {
@@ -100,11 +107,17 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
         return baseUrl;
     }
 
+    /**
+     * 创建OkHttpClient  createOkHttpClient
+     * @param sporeClient
+     * @return OkHttpClient
+     */
     private OkHttpClient createOkHttpClient(SporeClient sporeClient) {
+
         OkHttpClient.Builder okHttpClientBuilder;
+        // 判断是否使用自定义OkHttpClient
         if (StringUtils.hasText(sporeClient.sourceOkHttpClient())){
-            OkHttpClient sourceOkHttpClient = retrofitConfigBean.getSourceOkHttpClientRegistry()
-                    .get(sporeClient.sourceOkHttpClient());
+            OkHttpClient sourceOkHttpClient = retrofitConfigBean.getOkHttpClientRegistry().get(sporeClient.sourceOkHttpClient());
             okHttpClientBuilder = sourceOkHttpClient.newBuilder();
         }else {
             okHttpClientBuilder = new OkHttpClient.Builder();
@@ -121,7 +134,6 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
             okHttpClientBuilder.dispatcher(new Dispatcher(new ThreadPoolExecutor(5,
                     ThreadPoolUtil.MAXIMUM_POOL_SIZE, 3, TimeUnit.MINUTES, new SynchronousQueue<>())));
         }
-
         // 使用okhttp自带的interceptor打印返回body
         if (logger.isDebugEnabled()) {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(logger::debug);
@@ -129,10 +141,20 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
             okHttpClientBuilder.addInterceptor(logInterceptor);
         }
 
+        // 注册 微服务选择器拦截器
+        if (StringUtils.hasText(sporeClient.serviceId())) {
+            okHttpClientBuilder.addInterceptor(retrofitConfigBean.getServiceChooseInterceptor());
+        }
+
+        // 注册错误解码拦截器
+        okHttpClientBuilder.addInterceptor(retrofitConfigBean.getErrorDecoderInterceptor());
         // 注册重试拦截器
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getRetryInterceptor());
         // 注册日志拦截器
         okHttpClientBuilder.addInterceptor(retrofitConfigBean.getLoggingInterceptor());
+
+        // 注册全局拦截器
+        retrofitConfigBean.getGlobalInterceptors().forEach(okHttpClientBuilder::addInterceptor);
 
         OkHttpClient httpClient = okHttpClientBuilder.build();
         httpClient.dispatcher().setMaxRequests(1000);
@@ -143,15 +165,6 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Initializin
     @Override
     public Class<T> getObjectType() {
         return targetClass;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        //读取spring.application.name，放入header传给下游，当前用于指定应用限流
-        String springApplicationName = environment.getProperty("spring.application.name");
-        if (!StringUtils.isEmpty(springApplicationName)){
-            ApplicationHolder.setSpringApplicationName(springApplicationName);
-        }
     }
 
     @Override
