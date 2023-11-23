@@ -10,7 +10,7 @@
 1. *Spring Boot 3.x 项目，请使用spore-spring-boot-starter 3.x*。
 2. *Spring Boot 1.x/2.x 项目，请使用spore-spring-boot-starter 2.x*。
 
-> 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
+> 麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
 github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](https://github.com/XimuTech/spore-spring-boot-starter)
 
@@ -37,7 +37,7 @@ github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](htt
 <dependency>
    <groupId>io.github.ximutech</groupId>
    <artifactId>spore-spring-boot-starter</artifactId>
-   <version>2.0.3</version>
+   <version>2.0.4</version>
 </dependency>
 ```
 
@@ -52,7 +52,7 @@ github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](htt
 public interface HttpApi {
 
     @GET("/")
-    Result<Person> getPerson();
+    HitokotoVO getContent();
 }
 ```
 
