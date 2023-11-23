@@ -1,4 +1,4 @@
-package io.github.ximutech.spore;
+package io.github.ximutech.spore.service;
 
 import io.github.ximutech.spore.exception.ServiceInstanceChooseException;
 

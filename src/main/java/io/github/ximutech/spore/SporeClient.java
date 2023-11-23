@@ -1,5 +1,7 @@
 package io.github.ximutech.spore;
 
+import io.github.ximutech.spore.decoder.ErrorDecoder;
+
 import java.lang.annotation.*;
 
 @Target(ElementType.TYPE)
@@ -62,4 +64,16 @@ public @interface SporeClient {
      * OkHttpClient，根据该名称到#{@link SourceOkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
      */
     String sourceOkHttpClient() default "";
+
+    /**
+     * 当前接口采用的错误解码器，当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断。
+     * 一般情况下，每个服务对应的无效响应各不相同，可以自定义对应的{@link ErrorDecoder}，然后配置在这里。
+     * <p>
+     * The error decoder used in the current interface will decode HTTP related information into the exception when an exception occurs in the request or an invalid response result is received.
+     * The invalid response is determined by the business itself.
+     * In general, the invalid response corresponding to each service is different, you can customize the corresponding {@link ErrorDecoder}, and then configure it here.
+     *
+     * @return 错误解码器
+     */
+    Class<? extends ErrorDecoder> errorDecoder() default ErrorDecoder.DefaultErrorDecoder.class;
 }
