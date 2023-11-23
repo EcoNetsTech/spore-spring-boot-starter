@@ -12,7 +12,7 @@
 
 > 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
-github项目地址：[https://github.com/XimuTech/retrofit-spring-boot-starter](https://github.com/XimuTech/spore-spring-boot-starter)
+github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](https://github.com/XimuTech/spore-spring-boot-starter)
 
 <!--more-->
 
@@ -35,9 +35,9 @@ github项目地址：[https://github.com/XimuTech/retrofit-spring-boot-starter](
 
 ```xml
 <dependency>
-    <groupId>com.ximutech.spore</groupId>
+   <groupId>io.github.ximutech</groupId>
    <artifactId>spore-spring-boot-starter</artifactId>
-   <version>2.0.2</version>
+   <version>2.0.3</version>
 </dependency>
 ```
 
@@ -549,7 +549,6 @@ retrofit:
 retrofit:
    # 全局转换器工厂
    global-converter-factories:
-      - com.github.lianjiatech.retrofit.spring.boot.core.BasicTypeConverterFactory
       - retrofit2.converter.jackson.JacksonConverterFactory
 ```
 
