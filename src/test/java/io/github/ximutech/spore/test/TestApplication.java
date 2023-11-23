@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author ximu
  */
 @SpringBootApplication
-@EnableSporeClients(basePackages = {"com.ximutech.spore"})
+@EnableSporeClients(basePackages = {"io.github.ximutech.spore"})
 @Slf4j
 public class TestApplication {
     public static void main(String[] args) {
