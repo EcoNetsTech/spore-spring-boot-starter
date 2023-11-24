@@ -3,11 +3,9 @@ package io.github.ximutech.spore.retrofit;
 import io.github.ximutech.spore.Constants;
 import io.github.ximutech.spore.SporeClient;
 import io.github.ximutech.spore.config.RetrofitConfigBean;
-import io.github.ximutech.spore.util.ThreadPoolUtil;
-import okhttp3.ConnectionPool;
-import okhttp3.Dispatcher;
+import io.github.ximutech.spore.retrofit.adapter.*;
+import io.github.ximutech.spore.util.AppContextUtils;
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -18,11 +16,14 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,11 +76,73 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .validateEagerly(sporeClient.validateEagerly())
-                .addConverterFactory(new HttpConvertFactory(sporeClient.charset(), sporeClient.snake()))
-                .addCallAdapterFactory(BizCallAdapterFactory.create())
+//                .addConverterFactory(new HttpConvertFactory(sporeClient.charset(), sporeClient.snake()))
+//                .addCallAdapterFactory(BizCallAdapterFactory.create())
                 .client(okHttpClient);
 
+        // 添加配置或者指定的ConverterFactory
+        List<Class<? extends Converter.Factory>> converterFactories = new ArrayList<>(4);
+        converterFactories.addAll(Arrays.asList(sporeClient.converterFactories()));
+        converterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalConverterFactoryClasses()));
+        converterFactories.forEach(converterFactoryClass -> retrofitBuilder
+                .addConverterFactory(AppContextUtils.getBeanOrNew(applicationContext, converterFactoryClass)));
+
+        // 添加配置或者指定的CallAdapterFactory
+        List<Class<? extends CallAdapter.Factory>> callAdapterFactories = new ArrayList<>(2);
+        callAdapterFactories.addAll(Arrays.asList(sporeClient.callAdapterFactories()));
+        callAdapterFactories.addAll(Arrays.asList(retrofitConfigBean.getGlobalCallAdapterFactoryClasses()));
+        callAdapterFactories.stream()
+                // 过滤掉内置的CallAdapterFactory，因为后续会指定add
+                .filter(adapterFactoryClass -> !InternalCallAdapterFactory.class.isAssignableFrom(adapterFactoryClass))
+                .forEach(adapterFactoryClass -> retrofitBuilder
+                        .addCallAdapterFactory(AppContextUtils.getBeanOrNew(applicationContext, adapterFactoryClass)));
+
+        addReactiveCallAdapterFactory(retrofitBuilder);
+        retrofitBuilder.addCallAdapterFactory(ResponseCallAdapterFactory.INSTANCE);
+        retrofitBuilder.addCallAdapterFactory(BodyCallAdapterFactory.INSTANCE);
+
         return retrofitBuilder.build();
+    }
+
+    private void addReactiveCallAdapterFactory(Retrofit.Builder retrofitBuilder) {
+        if (reactor3ClassExist()) {
+            retrofitBuilder.addCallAdapterFactory(MonoCallAdapterFactory.INSTANCE);
+        }
+        if (rxjava2ClassExist()) {
+            retrofitBuilder.addCallAdapterFactory(Rxjava2SingleCallAdapterFactory.INSTANCE);
+            retrofitBuilder.addCallAdapterFactory(Rxjava2CompletableCallAdapterFactory.INSTANCE);
+        }
+        if (rxjava3ClassExist()) {
+            retrofitBuilder.addCallAdapterFactory(Rxjava3SingleCallAdapterFactory.INSTANCE);
+            retrofitBuilder.addCallAdapterFactory(Rxjava3CompletableCallAdapterFactory.INSTANCE);
+        }
+    }
+
+    private boolean rxjava3ClassExist() {
+        try {
+            Class.forName("io.reactivex.rxjava3.core.Single");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private boolean rxjava2ClassExist() {
+        try {
+            Class.forName("io.reactivex.Single");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private boolean reactor3ClassExist() {
+        try {
+            Class.forName("reactor.core.publisher.Mono");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /**

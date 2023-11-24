@@ -2,6 +2,8 @@ package io.github.ximutech.spore;
 
 import io.github.ximutech.spore.decoder.ErrorDecoder;
 import io.github.ximutech.spore.okhttp.OkHttpClientRegistry;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
 
 import java.lang.annotation.*;
 
@@ -79,4 +81,24 @@ public @interface SporeClient {
      * @return 错误解码器
      */
     Class<? extends ErrorDecoder> errorDecoder() default ErrorDecoder.DefaultErrorDecoder.class;
+
+    /**
+     * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * <p>
+     * Converter factory for the current interface, higher priority than global converter factory.
+     * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     *
+     * @return 转换器工厂
+     */
+    Class<? extends Converter.Factory>[] converterFactories() default {};
+
+    /**
+     * 适用于当前接口的调用适配器工厂，优先级比全局调用适配器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * <p>
+     * callAdapter factory for the current interface, higher priority than global callAdapter factory.
+     * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     *
+     * @return 调用适配器工厂
+     */
+    Class<? extends CallAdapter.Factory>[] callAdapterFactories() default {};
 }

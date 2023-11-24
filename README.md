@@ -100,6 +100,13 @@ public class TestService {
 
 ```yaml
 retrofit:
+   # 全局转换器工厂
+   global-converter-factories:
+      - retrofit2.converter.jackson.JacksonConverterFactory
+   # 全局调用适配器工厂
+   global-call-adapter-factories:
+      - io.github.ximutech.spore.retrofit.BodyCallAdapterFactory
+
    # 全局日志打印配置
    global-log:
       # 启用日志打印

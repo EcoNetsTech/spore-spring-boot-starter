@@ -7,6 +7,8 @@ import io.github.ximutech.spore.log.LoggingInterceptor;
 import io.github.ximutech.spore.retry.RetryInterceptor;
 import io.github.ximutech.spore.service.ServiceChooseInterceptor;
 import lombok.Data;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +29,10 @@ public class RetrofitConfigBean {
 
     private ServiceChooseInterceptor serviceChooseInterceptor;
 
+    private Class<? extends Converter.Factory>[] globalConverterFactoryClasses;
+
+    private Class<? extends CallAdapter.Factory>[] globalCallAdapterFactoryClasses;
+
     private OkHttpClientRegistry okHttpClientRegistry;
 
     private List<GlobalInterceptor> globalInterceptors;
@@ -42,4 +48,5 @@ public class RetrofitConfigBean {
         }
         return globalInterceptors;
     }
+
 }
