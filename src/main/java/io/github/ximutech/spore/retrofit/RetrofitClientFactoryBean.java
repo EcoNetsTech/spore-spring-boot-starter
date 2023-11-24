@@ -129,16 +129,10 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
             okHttpClientBuilder.callTimeout(sporeClient.callTimeout(), TimeUnit.MILLISECONDS);
 
             // 配置线程池
-            ConnectionPool pool = new ConnectionPool(180, 5, TimeUnit.MINUTES);
-            okHttpClientBuilder.connectionPool(pool);
-            okHttpClientBuilder.dispatcher(new Dispatcher(new ThreadPoolExecutor(5,
-                    ThreadPoolUtil.MAXIMUM_POOL_SIZE, 3, TimeUnit.MINUTES, new SynchronousQueue<>())));
-        }
-        // 使用okhttp自带的interceptor打印返回body
-        if (logger.isDebugEnabled()) {
-            HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(logger::debug);
-            logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            okHttpClientBuilder.addInterceptor(logInterceptor);
+//            ConnectionPool pool = new ConnectionPool(180, 5, TimeUnit.MINUTES);
+//            okHttpClientBuilder.connectionPool(pool);
+//            okHttpClientBuilder.dispatcher(new Dispatcher(new ThreadPoolExecutor(5,
+//                    ThreadPoolUtil.MAXIMUM_POOL_SIZE, 3, TimeUnit.MINUTES, new SynchronousQueue<>())));
         }
 
         // 注册 微服务选择器拦截器

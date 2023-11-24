@@ -45,6 +45,11 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public ServiceInstanceChooser retrofitServiceInstanceChooser() {
+        return new ServiceInstanceChooser.NoValidServiceInstanceChooser();
+    }
+    @Bean
+    @ConditionalOnMissingBean
     public ServiceChooseInterceptor serviceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser){
         return new ServiceChooseInterceptor(serviceInstanceChooser);
     }

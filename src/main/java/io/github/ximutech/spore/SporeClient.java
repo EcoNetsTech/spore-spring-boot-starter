@@ -27,7 +27,7 @@ public @interface SporeClient {
      */
     String path() default "";
 
-    /*========= sourceOkHttpClient为时空超时时间才生效   ===========*/
+    /*========= sourceOkHttpClient为空时超时时间才生效   ===========*/
     /**
      * 请求超时时间 单位:毫秒
      */
