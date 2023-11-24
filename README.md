@@ -37,7 +37,7 @@ github项目地址：[https://github.com/XimuTech/spore-spring-boot-starter](htt
 <dependency>
    <groupId>io.github.ximutech</groupId>
    <artifactId>spore-spring-boot-starter</artifactId>
-   <version>2.0.4</version>
+   <version>2.0.5</version>
 </dependency>
 ```
 
