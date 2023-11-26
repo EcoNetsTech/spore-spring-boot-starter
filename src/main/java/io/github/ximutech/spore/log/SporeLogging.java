@@ -3,6 +3,7 @@ package io.github.ximutech.spore.log;
 import java.lang.annotation.*;
 
 /**
+ * 日志打印注解
  * @author ximu
  */
 @Retention(RetentionPolicy.RUNTIME)

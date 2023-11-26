@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 
 /**
+ *
  * @author ximu
  */
 public class RetrofitException extends RuntimeException {

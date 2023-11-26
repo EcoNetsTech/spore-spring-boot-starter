@@ -1,6 +1,7 @@
 package io.github.ximutech.spore.exception;
 
 /**
+ * okhttp解析失败异常
  * @author ximu
  */
 public class ReadResponseBodyException extends Exception {

@@ -83,9 +83,7 @@ public class RetryInterceptor implements Interceptor {
                 } else {
                     if (!retryStrategy.shouldRetry()) {
                         // 最后一次还没成功，抛出异常
-                        throw new RetryFailedException("Retry Failed: Total " + maxRetries
-                                + " attempts made at interval " + intervalMs
-                                + "ms");
+                        throw new RetryFailedException("Retry Failed: Total " + maxRetries + " attempts made at interval " + intervalMs + "ms");
                     }
                     retryStrategy.retry();
                 }

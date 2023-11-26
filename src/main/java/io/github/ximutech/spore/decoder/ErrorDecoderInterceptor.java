@@ -31,13 +31,11 @@ public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextA
 
     @Override
     @SneakyThrows
-    public Response intercept(Chain chain) throws IOException {
+    public Response intercept(Chain chain) {
         Request request = chain.request();
         Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
-        SporeClient retrofitClient =
-                AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), SporeClient.class);
-        ErrorDecoder errorDecoder =
-                AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.errorDecoder());
+        SporeClient retrofitClient = AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), SporeClient.class);
+        ErrorDecoder errorDecoder = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.errorDecoder());
         boolean decoded = false;
         try {
             Response response = chain.proceed(request);

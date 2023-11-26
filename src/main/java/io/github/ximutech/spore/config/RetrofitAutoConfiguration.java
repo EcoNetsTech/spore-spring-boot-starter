@@ -1,11 +1,15 @@
 package io.github.ximutech.spore.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ximutech.spore.GlobalInterceptor;
 import io.github.ximutech.spore.okhttp.OkHttpClientRegistry;
 import io.github.ximutech.spore.decoder.ErrorDecoder;
 import io.github.ximutech.spore.decoder.ErrorDecoderInterceptor;
 import io.github.ximutech.spore.log.LoggingInterceptor;
 import io.github.ximutech.spore.okhttp.OkHttpClientRegistrar;
+import io.github.ximutech.spore.retrofit.converter.BaseTypeConverterFactory;
 import io.github.ximutech.spore.retry.RetryInterceptor;
 import io.github.ximutech.spore.service.ServiceChooseInterceptor;
 import io.github.ximutech.spore.service.ServiceInstanceChooser;
@@ -14,6 +18,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.List;
 
@@ -30,6 +35,10 @@ public class RetrofitAutoConfiguration {
         this.retrofitProperties = retrofitProperties;
     }
 
+    @Bean
+    public BaseTypeConverterFactory basicTypeConverterFactory() {
+        return BaseTypeConverterFactory.INSTANCE;
+    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -43,6 +52,11 @@ public class RetrofitAutoConfiguration {
         return new LoggingInterceptor(retrofitProperties.getGlobalLog());
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public ServiceInstanceChooser retrofitServiceInstanceChooser() {
+        return new ServiceInstanceChooser.NoValidServiceInstanceChooser();
+    }
     @Bean
     @ConditionalOnMissingBean
     public ServiceChooseInterceptor serviceChooseInterceptor(@Autowired ServiceInstanceChooser serviceInstanceChooser){
@@ -69,6 +83,15 @@ public class RetrofitAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public JacksonConverterFactory retrofitJacksonConverterFactory() {
+        ObjectMapper objectMapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return JacksonConverterFactory.create(objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public RetrofitConfigBean retrofitConfigBean(RetryInterceptor retryInterceptor,
                                                  LoggingInterceptor loggingInterceptor,
                                                  ErrorDecoderInterceptor errorDecoderInterceptor,
@@ -77,12 +100,17 @@ public class RetrofitAutoConfiguration {
                                                  OkHttpClientRegistry okHttpClientRegistry){
 
         RetrofitConfigBean retrofitConfigBean = new RetrofitConfigBean(retrofitProperties);
+        retrofitConfigBean.setGlobalCallAdapterFactoryClasses(retrofitProperties.getGlobalCallAdapterFactories());
+        retrofitConfigBean.setGlobalConverterFactoryClasses(retrofitProperties.getGlobalConverterFactories());
+
         retrofitConfigBean.setRetryInterceptor(retryInterceptor);
         retrofitConfigBean.setLoggingInterceptor(loggingInterceptor);
         retrofitConfigBean.setErrorDecoderInterceptor(errorDecoderInterceptor);
         retrofitConfigBean.setServiceChooseInterceptor(serviceChooseInterceptor);
 
         retrofitConfigBean.setOkHttpClientRegistry(okHttpClientRegistry);
+
+        retrofitConfigBean.setGlobalInterceptors(globalInterceptors);
 
         return retrofitConfigBean;
     }

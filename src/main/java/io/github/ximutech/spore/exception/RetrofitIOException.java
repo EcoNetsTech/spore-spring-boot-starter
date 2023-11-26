@@ -1,6 +1,7 @@
 package io.github.ximutech.spore.exception;
 
 /**
+ * io异常
  * @author ximu
  */
 public class RetrofitIOException extends RetrofitException {

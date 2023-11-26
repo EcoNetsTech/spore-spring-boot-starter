@@ -2,6 +2,8 @@ package io.github.ximutech.spore;
 
 import io.github.ximutech.spore.decoder.ErrorDecoder;
 import io.github.ximutech.spore.okhttp.OkHttpClientRegistry;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
 
 import java.lang.annotation.*;
 
@@ -14,57 +16,63 @@ public @interface SporeClient {
      * 可以直接使用url
      * 也可以指定为属性键，例如：$ {propertyKey}
      * 如果baseUrl没有配置，则必须配置serviceId，path可选配置。
+     *
+     * @return 基础Url
      */
     String baseUrl() default "";
     /**
      * 服务id
      * 用于微服务之前的http调用
      * 可以指定为属性键，例如：$ {propertyKey}
+     *
+     * @return 服务id
      */
     String serviceId() default "";
     /**
      * 服务路径前缀
+     *
+     * @return 服务路径前缀
      */
     String path() default "";
 
-    /*========= sourceOkHttpClient为时空超时时间才生效   ===========*/
+    /*========= sourceOkHttpClient为空时超时时间才生效   ===========*/
     /**
      * 请求超时时间 单位:毫秒
+     *
+     * @return connectTimeoutMs
      */
-    long connectTimeout() default 10000;
+    long connectTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 读取超时时间 单位:毫秒
+     *
+     * @return readTimeoutMs
      */
-    long readTimeout() default 10000;
+    long readTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 写入超时时间 单位:毫秒
+     *
+     * @return writeTimeoutMs
      */
-    long writeTimeout() default 10000;
+    long writeTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 调用超时时间 单位:毫秒
+     *
+     * @return callTimeoutMs
      */
-    long callTimeout() default 10000;
+    long callTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
 
 
     /**
      * OkHttpClient，根据该名称到#{@link OkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
-     */
-    String sourceOkHttpClient() default "";
-
-    /**
-     * 反序列化策略
      *
-     * 所有字母均为小写，并在名称元素之间使用下划线作为分隔符  snake_case
+     * @return okHttpClient
      */
-    boolean snake() default false;
-
-    /**
-     * 请求字符格式
-     */
-    String charset() default "utf-8";
+    String okHttpClient() default "";
 
     /**
      * 是否提前验证Service接口方法
+     *
+     * @return validateEagerly
      */
     boolean validateEagerly() default false;
 
@@ -79,4 +87,24 @@ public @interface SporeClient {
      * @return 错误解码器
      */
     Class<? extends ErrorDecoder> errorDecoder() default ErrorDecoder.DefaultErrorDecoder.class;
+
+    /**
+     * 适用于当前接口的转换器工厂，优先级比全局转换器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * <p>
+     * Converter factory for the current interface, higher priority than global converter factory.
+     * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     *
+     * @return 转换器工厂
+     */
+    Class<? extends Converter.Factory>[] converterFactories() default {};
+
+    /**
+     * 适用于当前接口的调用适配器工厂，优先级比全局调用适配器工厂更高。转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
+     * <p>
+     * callAdapter factory for the current interface, higher priority than global callAdapter factory.
+     * The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
+     *
+     * @return 调用适配器工厂
+     */
+    Class<? extends CallAdapter.Factory>[] callAdapterFactories() default {};
 }

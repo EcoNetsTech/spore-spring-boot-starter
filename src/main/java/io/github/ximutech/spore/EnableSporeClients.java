@@ -18,6 +18,8 @@ public @interface EnableSporeClients {
 
     /**
      * 根据包路径扫描
+     *
+     * @return basePackages
      */
     String[] basePackages() default {};
 
