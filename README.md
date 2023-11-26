@@ -128,6 +128,17 @@ retrofit:
       retry-rules:
          - response_status_not_2xx
          - occur_io_exception
+
+   # 全局超时时间配置
+   global-timeout:
+      # 全局读取超时时间
+      read-timeout-ms: 10000
+      # 全局写入超时时间
+      write-timeout-ms: 10000
+      # 全局连接超时时间
+      connect-timeout-ms: 10000
+      # 全局完整调用超时时间
+      call-timeout-ms: 0
 ```
 
 ## 高级功能
@@ -144,23 +155,19 @@ retrofit:
 1. 实现`OkHttpClientRegistrar`接口，调用`OkHttpClientRegistry#register()`方法注册`OkHttpClient`。
    
    ```java
-   @Slf4j
    @Component
+   @Slf4j
    public class CustomOkHttpClientRegistrar implements OkHttpClientRegistrar {
+        @Override
+        public void register(OkHttpClientRegistry registry) {
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                     .addInterceptor(chain -> {
+                     log.info("========== 自定义okHttpClient的拦截器 ============");
+                     return chain.proceed(chain.request());
+                     })
+                   .build();
    
-       @Override
-       public void register(OkHttpClientRegistry registry) {
-   
-           // 添加testOkHttpClient
-           registry.register("testOkHttpClient", new OkHttpClient.Builder()
-                   .connectTimeout(Duration.ofSeconds(3))
-                   .writeTimeout(Duration.ofSeconds(3))
-                   .readTimeout(Duration.ofSeconds(3))
-                   .addInterceptor(chain -> {
-                       log.info("============use testOkHttpClient=============");
-                       return chain.proceed(chain.request());
-                   })
-                   .build());
+           registry.register("customOkHttpClient", okHttpClient);
        }
    }
    ```
@@ -168,11 +175,11 @@ retrofit:
 2. 通过`@SporeClient.sourceOkHttpClient`指定当前接口要使用的`OkHttpClient`。
 
    ```java
-   @SporeClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "testOkHttpClient")
+   @SporeClient(baseUrl = "${test.baseUrl}", sourceOkHttpClient = "customOkHttpClient")
    public interface CustomOkHttpTestApi {
-   
-       @GET("person")
-       Result<Person> getPerson(@Query("id") Long id);
+
+         @GET("/get")
+         Result<HitokotoVO> get();
    }
    ```
 
@@ -194,35 +201,21 @@ retrofit:
 
 ```java
 @Component
-public class TimeStampInterceptor extends BasePathMatchInterceptor {
-
-    @Override
-    public Response doIntercept(Chain chain) throws IOException {
-        Request request = chain.request();
-        HttpUrl url = request.url();
-        long timestamp = System.currentTimeMillis();
-        HttpUrl newUrl = url.newBuilder()
-                .addQueryParameter("timestamp", String.valueOf(timestamp))
-                .build();
-        Request newRequest = request.newBuilder()
-                .url(newUrl)
-                .build();
-        return chain.proceed(newRequest);
-    }
-}
-```
-
-默认情况下，**组件会自动将`BasePathMatchInterceptor`的`scope`设置为`prototype`**。
-可通过`retrofit.auto-set-prototype-scope-for-path-math-interceptor=false`关闭该功能。关闭之后，需要手动将`scope`设置为`prototype`。
-
-```java
-@Component
 @Scope("prototype")
-public class TimeStampInterceptor extends BasePathMatchInterceptor {
-
+public class TokenInterceptor extends BasePathMatchInterceptor {
    @Override
-   public Response doIntercept(Chain chain) throws IOException {
-      // ...
+   protected Response doIntercept(Chain chain) throws IOException {
+      System.out.println("============ 进入token拦截器 ===============");
+      Request request = chain.request();
+
+      HttpUrl newUrl = request.url().newBuilder()
+              .addQueryParameter("token", UUID.randomUUID().toString())
+              .build();
+
+      Request newRequest = request.newBuilder()
+              .url(newUrl)
+              .build();
+      return chain.proceed(newRequest);
    }
 }
 ```
@@ -231,19 +224,14 @@ public class TimeStampInterceptor extends BasePathMatchInterceptor {
 
 ```java
 @SporeClient(baseUrl = "${test.baseUrl}")
-@Intercept(handler = TimeStampInterceptor.class, include = {"/api/**"}, exclude = "/api/test/savePerson")
-@Intercept(handler = TimeStamp2Interceptor.class) // 需要多个，直接添加即可
+@Intercept(handler = TokenInterceptor.class, include = {"/api/**"}, exclude = "/api/test1")
 public interface HttpApi {
-
-    @GET("person")
-    Result<Person> getPerson(@Query("id") Long id);
-
-    @POST("savePerson")
-    Result<Person> savePerson(@Body Person person);
+   @GET("/get")
+   Result<HitokotoVO> get();
 }
 ```
 
-上面的`@Intercept`配置表示：拦截`HttpApi`接口下`/api/**`路径下（排除`/api/test/savePerson`）的请求，拦截处理器使用`TimeStampInterceptor`。
+上面的`@Intercept`配置表示：拦截`HttpApi`接口下`/api/**`路径下（排除`/api/test1`）的请求，拦截处理器使用`TokenInterceptor`。
 
 
 ## 全局拦截器
@@ -256,17 +244,16 @@ public interface HttpApi {
 @Component
 public class CustomGlobalInterceptor implements GlobalInterceptor {
 
-   @Autowired
-   private TestService testService;
-
    @Override
    public Response intercept(Chain chain) throws IOException {
+      System.out.println("===========执行全局拦截器===========");
+
       Request request = chain.request();
-      Request newReq = request.newBuilder()
-              .addHeader("source", "test")
+      Request newRequest = request.newBuilder()
+              .addHeader("traceId", UUID.randomUUID().toString())
               .build();
-      testService.test();
-      return chain.proceed(newReq);
+
+      return chain.proceed(newRequest);
    }
 }
 ```

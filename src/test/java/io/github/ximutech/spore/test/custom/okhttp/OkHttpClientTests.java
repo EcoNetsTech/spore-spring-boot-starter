@@ -1,4 +1,4 @@
-package io.github.ximutech.spore.test.decoder;
+package io.github.ximutech.spore.test.custom.okhttp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -12,23 +12,26 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 
+/**
+ * @author ximu
+ */
 @SpringBootTest(classes = TestApplication.class)
 @RunWith(SpringRunner.class)
-public class ErrorDecoderTests {
+public class OkHttpClientTests {
 
     private MockWebServer mockWebServer;
 
     private static final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    @Resource
-    ErrorDecoderTestApi errorDecoderTestApi;
+    @Autowired
+    CustomOkHttpClientTestApi customOkHttpClientTestApi;
 
     @Before
     public void before() throws IOException {
@@ -43,7 +46,7 @@ public class ErrorDecoderTests {
         result.setCode(500);
         result.setMsg("");
         MockResponse response  = new MockResponse()
-                .setResponseCode(500)
+                .setResponseCode(200)
                 .setHeader("Content-Type", "application/json; charset=utf-8")
                 .addHeader("Cache-Control", "no-cache")
                 .setBody(objectMapper.writeValueAsString(result));
@@ -57,7 +60,7 @@ public class ErrorDecoderTests {
 
     @Test
     public void test(){
-        Result<HitokotoVO> result = errorDecoderTestApi.get();
-        System.out.println(result);
+        Result<HitokotoVO> hitokotoVOResult = customOkHttpClientTestApi.get();
+        System.out.println(hitokotoVOResult.getData());
     }
 }

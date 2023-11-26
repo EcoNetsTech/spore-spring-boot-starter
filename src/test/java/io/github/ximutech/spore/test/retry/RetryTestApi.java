@@ -5,7 +5,7 @@ import io.github.ximutech.spore.retry.Retry;
 import io.github.ximutech.spore.test.entity.HitokotoVO;
 import retrofit2.http.GET;
 
-@SporeClient(baseUrl = "http://localhost:8080", readTimeout = 1, connectTimeout = 1)
+@SporeClient(baseUrl = "http://localhost:8080", readTimeoutMs = 1, connectTimeoutMs = 1)
 @Retry
 public interface RetryTestApi {
 

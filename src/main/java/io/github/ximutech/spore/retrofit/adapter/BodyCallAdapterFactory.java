@@ -10,10 +10,9 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package io.github.ximutech.spore.retrofit;
+package io.github.ximutech.spore.retrofit.adapter;
 
 import io.github.ximutech.spore.exception.RetrofitException;
-import io.github.ximutech.spore.retrofit.adapter.InternalCallAdapterFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import okhttp3.Request;

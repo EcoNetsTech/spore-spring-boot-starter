@@ -33,25 +33,20 @@ public @interface SporeClient {
     /**
      * 请求超时时间 单位:毫秒
      */
-    long connectTimeout() default 10000;
+    long connectTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 读取超时时间 单位:毫秒
      */
-    long readTimeout() default 10000;
+    long readTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 写入超时时间 单位:毫秒
      */
-    long writeTimeout() default 10000;
+    long writeTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 调用超时时间 单位:毫秒
      */
-    long callTimeout() default 10000;
+    long callTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
 
-
-    /**
-     * OkHttpClient，根据该名称到#{@link OkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
-     */
-    String sourceOkHttpClient() default "";
 
     /**
      * 反序列化策略
@@ -59,6 +54,11 @@ public @interface SporeClient {
      * 所有字母均为小写，并在名称元素之间使用下划线作为分隔符  snake_case
      */
     boolean snake() default false;
+
+    /**
+     * OkHttpClient，根据该名称到#{@link OkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
+     */
+    String okHttpClient() default "";
 
     /**
      * 请求字符格式

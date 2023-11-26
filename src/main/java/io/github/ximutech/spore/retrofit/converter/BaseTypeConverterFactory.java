@@ -1,4 +1,4 @@
-package io.github.ximutech.spore.retrofit;
+package io.github.ximutech.spore.retrofit.converter;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,12 +12,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 /**
+ * 默认转化器
  * @author ximu
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class BasicTypeConverterFactory extends Converter.Factory {
+public final class BaseTypeConverterFactory extends Converter.Factory {
 
-    public static final BasicTypeConverterFactory INSTANCE = new BasicTypeConverterFactory();
+    public static final BaseTypeConverterFactory INSTANCE = new BaseTypeConverterFactory();
 
     @Override
     public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations,

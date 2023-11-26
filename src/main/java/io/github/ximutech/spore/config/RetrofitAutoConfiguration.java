@@ -9,7 +9,7 @@ import io.github.ximutech.spore.decoder.ErrorDecoder;
 import io.github.ximutech.spore.decoder.ErrorDecoderInterceptor;
 import io.github.ximutech.spore.log.LoggingInterceptor;
 import io.github.ximutech.spore.okhttp.OkHttpClientRegistrar;
-import io.github.ximutech.spore.retrofit.BasicTypeConverterFactory;
+import io.github.ximutech.spore.retrofit.converter.BaseTypeConverterFactory;
 import io.github.ximutech.spore.retry.RetryInterceptor;
 import io.github.ximutech.spore.service.ServiceChooseInterceptor;
 import io.github.ximutech.spore.service.ServiceInstanceChooser;
@@ -36,8 +36,8 @@ public class RetrofitAutoConfiguration {
     }
 
     @Bean
-    public BasicTypeConverterFactory basicTypeConverterFactory() {
-        return BasicTypeConverterFactory.INSTANCE;
+    public BaseTypeConverterFactory basicTypeConverterFactory() {
+        return BaseTypeConverterFactory.INSTANCE;
     }
 
     @Bean

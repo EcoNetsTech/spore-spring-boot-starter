@@ -9,9 +9,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author ximu
  */
 @SpringBootApplication
-@EnableSporeClients(basePackages = {"io.github.ximutech.spore"})
+@EnableSporeClients(basePackages = {"io.github.ximutech.spore.test"})
 @Slf4j
 public class TestApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(TestApplication.class, args);
     }

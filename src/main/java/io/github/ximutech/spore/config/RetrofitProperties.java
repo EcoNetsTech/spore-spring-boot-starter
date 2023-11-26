@@ -2,7 +2,7 @@ package io.github.ximutech.spore.config;
 
 import io.github.ximutech.spore.Constants;
 import io.github.ximutech.spore.log.GlobalLogProperty;
-import io.github.ximutech.spore.retrofit.BasicTypeConverterFactory;
+import io.github.ximutech.spore.retrofit.converter.BaseTypeConverterFactory;
 import io.github.ximutech.spore.retry.GlobalRetryProperty;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -31,13 +31,19 @@ public class RetrofitProperties {
     private GlobalLogProperty globalLog = new GlobalLogProperty();
 
     /**
+     * 全局超时配置
+     */
+    @NestedConfigurationProperty
+    private GlobalTimeoutProperty globalTimeout = new GlobalTimeoutProperty();
+
+    /**
      * 全局转换器工厂，转换器实例优先从Spring容器获取，如果没有获取到，则反射创建。
      * <p>
      * global converter factories, The converter instance is first obtained from the Spring container. If it is not obtained, it is created by reflection.
      */
     @SuppressWarnings("unchecked")
     private Class<? extends Converter.Factory>[] globalConverterFactories =
-            (Class<? extends Converter.Factory>[])new Class[] {BasicTypeConverterFactory.class,
+            (Class<? extends Converter.Factory>[])new Class[] {BaseTypeConverterFactory.class,
                     JacksonConverterFactory.class};
 
     /**
