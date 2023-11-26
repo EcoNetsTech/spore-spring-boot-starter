@@ -233,11 +233,7 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Environment
         return httpClient;
     }
 
-    /**
-     * 通过注解扫描拦截器
-     *
-     * @return List<Interceptor>
-     */
+    // 通过注解扫描拦截器
     @SuppressWarnings("unchecked")
     private List<Interceptor> scanInterceptorByAnnotation(){
         Annotation[] annotations = AnnotationUtils.getAnnotations(targetClass);

@@ -16,57 +16,63 @@ public @interface SporeClient {
      * 可以直接使用url
      * 也可以指定为属性键，例如：$ {propertyKey}
      * 如果baseUrl没有配置，则必须配置serviceId，path可选配置。
+     *
+     * @return 基础Url
      */
     String baseUrl() default "";
     /**
      * 服务id
      * 用于微服务之前的http调用
      * 可以指定为属性键，例如：$ {propertyKey}
+     *
+     * @return 服务id
      */
     String serviceId() default "";
     /**
      * 服务路径前缀
+     *
+     * @return 服务路径前缀
      */
     String path() default "";
 
     /*========= sourceOkHttpClient为空时超时时间才生效   ===========*/
     /**
      * 请求超时时间 单位:毫秒
+     *
+     * @return connectTimeoutMs
      */
     long connectTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 读取超时时间 单位:毫秒
+     *
+     * @return readTimeoutMs
      */
     long readTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 写入超时时间 单位:毫秒
+     *
+     * @return writeTimeoutMs
      */
     long writeTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
     /**
      * 调用超时时间 单位:毫秒
+     *
+     * @return callTimeoutMs
      */
     long callTimeoutMs() default Constants.INVALID_TIMEOUT_VALUE;
 
 
     /**
-     * 反序列化策略
-     *
-     * 所有字母均为小写，并在名称元素之间使用下划线作为分隔符  snake_case
-     */
-    boolean snake() default false;
-
-    /**
      * OkHttpClient，根据该名称到#{@link OkHttpClientRegistry}查找对应的OkHttpClient来构建当前接口的OkhttpClient。
+     *
+     * @return okHttpClient
      */
     String okHttpClient() default "";
 
     /**
-     * 请求字符格式
-     */
-    String charset() default "utf-8";
-
-    /**
      * 是否提前验证Service接口方法
+     *
+     * @return validateEagerly
      */
     boolean validateEagerly() default false;
 
