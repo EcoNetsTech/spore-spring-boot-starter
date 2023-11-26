@@ -344,54 +344,6 @@ retrofit:
 如果需要修改请求重试行为，可以继承`RetryInterceptor`，并将其配置成`Spring bean`。
 
 
-#### 配置fallback或者fallbackFactory (可选)
-
-如果`@SporeClient`不设置`fallback`或者`fallbackFactory`，当触发熔断时，会直接抛出`RetrofitBlockException`异常。 用户可以通过设置`fallback`或者`fallbackFactory`来定制熔断时的方法返回值。
-
-> 注意：`fallback`类必须是当前接口的实现类，`fallbackFactory`必须是`FallbackFactory<T>`
-实现类，泛型参数类型为当前接口类型。另外，`fallback`和`fallbackFactory`实例必须配置成`Spring Bean`。
-
-`fallbackFactory`相对于`fallback`，主要差别在于能够感知每次熔断的异常原因(cause)，参考示例如下：
-
-```java
-
-@Slf4j
-@Service
-public class HttpDegradeFallback implements HttpDegradeApi {
-
-   @Override
-   public Result<Integer> test() {
-      Result<Integer> fallback = new Result<>();
-      fallback.setCode(100)
-              .setMsg("fallback")
-              .setBody(1000000);
-      return fallback;
-   }
-}
-```
-
-```java
-@Slf4j
-@Service
-public class HttpDegradeFallbackFactory implements FallbackFactory<HttpDegradeApi> {
-
-   @Override
-   public HttpDegradeApi create(Throwable cause) {
-      log.error("触发熔断了! ", cause.getMessage(), cause);
-      return new HttpDegradeApi() {
-         @Override
-         public Result<Integer> test() {
-            Result<Integer> fallback = new Result<>();
-            fallback.setCode(100)
-                    .setMsg("fallback")
-                    .setBody(1000000);
-            return fallback;
-         }
-      };
-   }
-}
-```
-
 ### 错误解码器
 
 在`HTTP`发生请求错误(包括发生异常或者响应数据不符合预期)的时候，错误解码器可将`HTTP`相关信息解码到自定义异常中。你可以在`@SporeClient`注解的`errorDecoder()`

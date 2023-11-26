@@ -1,7 +1,6 @@
 retrofit:
   # 全局转换器工厂
   global-converter-factories:
-    - io.github.ximutech.spore.retrofit.converter.BaseTypeConverterFactory
     - retrofit2.converter.jackson.JacksonConverterFactory
   # 全局调用适配器工厂
   global-call-adapter-factories:
@@ -41,5 +40,3 @@ retrofit:
 
 test:
   baseUrl: https://v1.hitokoto.cn
-  accessKeyId: root
-  accessKeySecret: 123456
