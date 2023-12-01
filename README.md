@@ -105,7 +105,7 @@ retrofit:
       - retrofit2.converter.jackson.JacksonConverterFactory
    # 全局调用适配器工厂
    global-call-adapter-factories:
-      - io.github.ximutech.spore.retrofit.BodyCallAdapterFactory
+      - io.github.ximutech.spore.retrofit.adapter.BodyCallAdapterFactory
 
    # 全局日志打印配置
    global-log:
