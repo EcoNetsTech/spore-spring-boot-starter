@@ -1,6 +1,7 @@
 package io.github.ximutech.spore.log;
 
 import io.github.ximutech.spore.util.AnnotationExtendUtils;
+import io.github.ximutech.spore.util.RetrofitUtils;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -39,7 +40,10 @@ public class LoggingInterceptor implements Interceptor {
     }
 
     protected SporeLogging findLogging(Chain chain) {
-        Method method = Objects.requireNonNull(chain.request().tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(chain.request());
+        if (method == null) {
+            return null;
+        }
         return AnnotationExtendUtils.findMergedAnnotation(method, method.getDeclaringClass(), SporeLogging.class);
     }
 
