@@ -2,6 +2,7 @@ package io.github.ximutech.spore.decoder;
 
 import io.github.ximutech.spore.SporeClient;
 import io.github.ximutech.spore.util.AppContextUtils;
+import io.github.ximutech.spore.util.RetrofitUtils;
 import lombok.SneakyThrows;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -33,7 +34,10 @@ public class ErrorDecoderInterceptor implements Interceptor, ApplicationContextA
     @SneakyThrows
     public Response intercept(Chain chain) {
         Request request = chain.request();
-        Method method = Objects.requireNonNull(request.tag(Invocation.class)).method();
+        Method method = RetrofitUtils.getMethodFormRequest(request);
+        if (method == null) {
+            return chain.proceed(request);
+        }
         SporeClient retrofitClient = AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), SporeClient.class);
         ErrorDecoder errorDecoder = AppContextUtils.getBeanOrNew(applicationContext, retrofitClient.errorDecoder());
         boolean decoded = false;

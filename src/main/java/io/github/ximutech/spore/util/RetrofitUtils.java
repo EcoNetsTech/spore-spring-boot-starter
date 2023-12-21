@@ -1,14 +1,13 @@
 package io.github.ximutech.spore.util;
 
 import io.github.ximutech.spore.exception.ReadResponseBodyException;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
+import retrofit2.Invocation;
 
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -73,6 +72,17 @@ public class RetrofitUtils {
         return contentEncoding != null
                 && !IDENTITY.equalsIgnoreCase(contentEncoding)
                 && !GZIP.equalsIgnoreCase(contentEncoding);
+    }
+
+    public static Method getMethodFormRequest(Request request) {
+        if (request == null) {
+            return null;
+        }
+        Invocation invocation = request.tag(Invocation.class);
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.method();
     }
 
 }
