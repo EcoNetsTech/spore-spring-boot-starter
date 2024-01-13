@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.ximutech</groupId>
+    <groupId>cn.econets.ximutech</groupId>
     <artifactId>spore-spring-boot-starter</artifactId>
-    <version>2.0.6</version>
+    <version>2.0.1</version>
 
     <name>spore-spring-boot-starter</name>
     <description>spore-spring-boot-starter</description>
