@@ -35,7 +35,7 @@ github项目地址：[https://github.com/EcoNetsTech/spore-spring-boot-starter](
 
 ```xml
 <dependency>
-   <groupId>io.github.ximutech</groupId>
+   <groupId>cn.econets.ximutech</groupId>
    <artifactId>spore-spring-boot-starter</artifactId>
    <version>3.0.1</version>
 </dependency>
@@ -105,7 +105,7 @@ retrofit:
       - retrofit2.converter.jackson.JacksonConverterFactory
    # 全局调用适配器工厂
    global-call-adapter-factories:
-      - io.github.ximutech.spore.retrofit.adapter.BodyCallAdapterFactory
+      - cn.econets.ximutech.spore.retrofit.adapter.BodyCallAdapterFactory
 
    # 全局日志打印配置
    global-log:

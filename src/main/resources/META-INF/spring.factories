@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.github.ximutech.spore.config.RetrofitAutoConfiguration
+  cn.econets.ximutech.spore.config.RetrofitAutoConfiguration
